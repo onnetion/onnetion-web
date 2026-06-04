@@ -1,4 +1,4 @@
-import { client } from "@/lib/apollo-client";
+import { client } from "../lib/apollo-client";
 import { gql } from "@apollo/client";
 
 async function getPosts() {
