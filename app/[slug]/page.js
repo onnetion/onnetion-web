@@ -1,62 +1,44 @@
-import { client } from "../lib/apollo-client";
+import { client } from "../../lib/apollo-client"; // এখানে ডাবল ডট (../../) হবে
 import { gql } from "@apollo/client";
-import Link from "next/link"; // এই লিঙ্কটি জরুরি
 
-async function getPosts() {
+async function getPostDetail(slug) {
   const query = gql`
-    query GetPosts {
-      posts(first: 10) {
-        nodes {
-          title
-          slug
-          featuredImage {
-            node { sourceUrl }
-          }
+    query GetPost($id: ID!) {
+      post(id: $id, idType: SLUG) {
+        title
+        content
+        featuredImage {
+          node { sourceUrl }
         }
       }
     }
   `;
   try {
-    const { data } = await client.query({ query });
-    return data.posts.nodes;
+    const { data } = await client.query({ 
+      query, 
+      variables: { id: slug } 
+    });
+    return data.post;
   } catch (error) {
-    return [];
+    return null;
   }
 }
 
-export default async function Home() {
-  const posts = await getPosts();
+export default async function PostPage({ params }) {
+  const post = await getPostDetail(params.slug);
+
+  if (!post) return <div className="text-center py-20">খবরটি পাওয়া যায়নি।</div>;
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        {/* প্রধান খবর */}
-        <div className="md:col-span-8">
-          {posts.length > 0 ? (
-            <Link href={`/${posts[0].slug}`} className="group cursor-pointer">
-              {posts[0].featuredImage && (
-                <img src={posts[0].featuredImage.node.sourceUrl} className="w-full h-[450px] object-cover rounded-lg shadow-md" alt="" />
-              )}
-              <h2 className="text-4xl font-bold mt-4 group-hover:text-red-600 transition">{posts[0].title}</h2>
-            </Link>
-          ) : <p className="text-center py-20 text-xl">খবর লোড হচ্ছে...</p>}
-        </div>
-
-        {/* পাশের তালিকা */}
-        <div className="md:col-span-4">
-          <h3 className="text-xl font-bold border-l-4 border-red-600 pl-2 mb-4">সর্বশেষ সংবাদ</h3>
-          <div className="space-y-6">
-            {posts.slice(1, 7).map((post) => (
-              <Link key={post.slug} href={`/${post.slug}`} className="flex gap-4 group cursor-pointer border-b pb-4">
-                {post.featuredImage && (
-                  <img src={post.featuredImage.node.sourceUrl} className="w-24 h-16 object-cover rounded" alt="" />
-                )}
-                <h4 className="font-bold group-hover:text-red-600 transition leading-tight">{post.title}</h4>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-    </main>
+    <article className="max-w-4xl mx-auto px-4 py-10">
+      <h1 className="text-3xl md:text-5xl font-bold mb-6">{post.title}</h1>
+      {post.featuredImage && (
+        <img src={post.featuredImage.node.sourceUrl} className="w-full h-auto rounded-xl mb-8" alt="" />
+      )}
+      <div 
+        className="prose prose-lg max-w-none leading-relaxed text-gray-800"
+        dangerouslySetInnerHTML={{ __html: post.content }} 
+      />
+    </article>
   );
 }
