@@ -3,33 +3,30 @@
 @tailwind utilities;
 
 :root {
-  --pa-red: #d92328;
   --pa-blue: #0056b3;
-  --pa-bg: #f8f9fa;
+  --pa-red: #d92328;
+  --pa-gray: #f4f4f4;
+  --pa-border: #e5e7eb;
 }
 
 body {
-  background-color: var(--pa-bg);
-  color: #1a1a1a;
   font-family: 'Hind Siliguri', sans-serif;
+  background-color: #ffffff;
 }
 
-/* প্রফেশনাল নিউজ কার্ড স্টাইল */
-.news-card-border {
-  border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
+/* নিউজ থাম্বনেইল এফেক্ট */
+.news-img-hover {
+  @apply overflow-hidden rounded-sm relative;
+}
+.news-img-hover img {
+  @apply transition-transform duration-700 hover:scale-105 object-cover;
 }
 
-.news-card-border:last-child {
-  border-bottom: none;
+/* নাম্বার র‍্যাঙ্কিং (১, ২, ৩...) */
+.rank-number {
+  @apply text-4xl font-black text-gray-200 group-hover:text-blue-600 transition;
 }
 
-/* ক্যাটাগরি লেবেল */
-.cat-label {
-  color: var(--pa-red);
-  font-weight: 700;
-  font-size: 0.875rem;
-  margin-bottom: 0.5rem;
-  display: block;
-}
+/* টাইপোগ্রাফি কন্ট্রোল */
+.lead-title { @apply text-4xl md:text-5xl font-black leading-tight mb-4 tracking-tight; }
+.sub-title { @apply text-lg font-bold leading-snug group-hover:text-blue-700 transition; }
