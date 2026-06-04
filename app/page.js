@@ -1,121 +1,112 @@
+import { fetchAPI } from "../lib/wordpress";
 import Link from "next/link";
 
-async function getPosts() {
-  const res = await fetch("https://onnetion.com/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: `{ posts(first: 35) { nodes { title slug excerpt date featuredImage { node { sourceUrl } } categories { nodes { name slug } } } } }`,
-    }),
-    cache: "no-store",
-  });
-  const json = await res.json();
-  return json.data?.posts?.nodes || [];
-}
-
 export default async function Home() {
-  const posts = await getPosts();
-  if (posts.length === 0) return <div className="p-20 text-center font-bold">সার্ভার এরর...</div>;
+  const data = await fetchAPI(`{
+    posts(first: 30) {
+      nodes {
+        title
+        slug
+        excerpt
+        date
+        featuredImage { node { sourceUrl } }
+      }
+    }
+  }`);
+  
+  const posts = data?.posts?.nodes || [];
+  
+  // যদি কোনো খবরই না থাকে
+  if (posts.length === 0) {
+    return <div className="p-20 text-center font-bold text-gray-400">খবর লোড হচ্ছে অথবা ডাটাবেস ফাঁকা...</div>;
+  }
 
+  // ডাটা স্ল্যাসিং (খবর ভাগ করা)
   const lead = posts[0];
-  const subLead = posts.slice(1, 6);
-  const worldNews = posts.slice(6, 12);
-  const sports = posts.slice(12, 16);
-  const mostRead = posts.slice(16, 22);
+  const subLead = posts.slice(1, 5);
+  const sideList = posts.slice(5, 11);
+  const videoStyleGrid = posts.slice(11, 15);
+  const sportsGrid = posts.slice(15, 23);
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      {/* ১. টপ হিরো সেকশন: ৩ কলাম গ্রিড */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 border-b pb-12 mb-12">
-        {/* বাম কলাম: সাব-নিউজ তালিকা */}
+    <main className="container mx-auto px-4 py-8 bg-white">
+      {/* ১. টপ হিরো সেকশন: প্রফেশনাল ৩ কলাম */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 border-b pb-12 mb-12">
+        
+        {/* বাম কলাম: সাব-নিউজ (৪টি) */}
         <div className="lg:col-span-3 space-y-6 hidden lg:block border-r pr-6">
           {subLead.map(p => (
             <Link key={p.slug} href={`/${p.slug}`} className="block border-b pb-4 last:border-0 group">
-              <h3 className="font-bold text-[17px] leading-snug group-hover:text-blue-700">{p.title}</h3>
-              <p className="text-[11px] text-gray-400 mt-2 font-bold italic">৩ ঘণ্টা আগে</p>
+              <h3 className="font-bold text-[17px] leading-tight group-hover:text-blue-700 transition">{p.title}</h3>
+              <p className="text-[11px] text-gray-400 mt-2 font-bold uppercase tracking-tighter">৫ মিনিট আগে</p>
             </Link>
           ))}
         </div>
 
-        {/* মাঝের কলাম: বিশাল লিড নিউজ */}
+        {/* মাঝখানের প্রধান লিড নিউজ */}
         <div className="lg:col-span-6 lg:px-6">
-          <Link href={`/${lead.slug}`} className="group block text-center">
-            <div className="aspect-video news-img-hover mb-6">
-              <img src={lead.featuredImage?.node?.sourceUrl} className="w-full h-full" alt="" />
-            </div>
-            <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tighter group-hover:text-blue-700 transition">
-              {lead.title}
+          <Link href={`/${lead?.slug}`} className="group block text-center">
+            {lead?.featuredImage?.node?.sourceUrl ? (
+              <div className="aspect-video overflow-hidden rounded-sm mb-6 bg-gray-100">
+                <img src={lead.featuredImage.node.sourceUrl} className="w-full h-full object-cover group-hover:scale-105 transition duration-1000" alt="" />
+              </div>
+            ) : <div className="aspect-video bg-gray-100 mb-6 rounded"></div>}
+            <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-tighter group-hover:text-blue-700 transition">
+              {lead?.title}
             </h1>
-            <div className="text-gray-500 mt-6 text-lg line-clamp-3 leading-relaxed" dangerouslySetInnerHTML={{ __html: lead.excerpt }} />
+            <div className="text-gray-500 mt-6 text-lg line-clamp-3 leading-relaxed" dangerouslySetInnerHTML={{ __html: lead?.excerpt || "" }} />
           </Link>
         </div>
 
-        {/* ডান কলাম: ছবিসহ শর্ট নিউজ */}
+        {/* ডান কলাম: সর্বাধিক পঠিত র‍্যাঙ্কিং */}
         <div className="lg:col-span-3 lg:border-l pl-6 space-y-8">
-           <h3 className="font-black text-xl border-b pb-2 mb-4">বাংলাদেশ</h3>
-           {worldNews.slice(0, 4).map(p => (
-            <Link key={p.slug} href={`/${p.slug}`} className="flex gap-4 group border-b pb-4 last:border-0">
-              <div className="w-24 h-20 bg-gray-100 flex-shrink-0 rounded-sm overflow-hidden">
-                <img src={p.featuredImage?.node?.sourceUrl} className="w-full h-full object-cover" />
-              </div>
-              <h4 className="font-bold text-sm leading-tight group-hover:text-blue-700">{p.title}</h4>
+           <h3 className="font-black text-xl border-b-2 border-black inline-block pb-1 mb-4 uppercase">আলোচিত</h3>
+           {sideList.map((p, i) => (
+            <Link key={p.slug} href={`/${p.slug}`} className="flex gap-4 group border-b pb-4 last:border-0 items-start">
+              <span className="text-3xl font-black text-gray-200 group-hover:text-blue-600 transition">{i + 1}</span>
+              <h4 className="font-bold text-[15px] leading-tight group-hover:text-blue-700">{p.title}</h4>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* ২. সেকশন: ভিডিও (প্রথম আলোর মতো প্লে আইকন গ্রিড) */}
-      <div className="py-12 bg-gray-50 -mx-4 px-4 border-y mb-12">
+      {/* ২. ভিডিও স্টাইল সেকশন (প্লে আইকন এফেক্ট) */}
+      <div className="py-12 bg-[#1a1a1a] -mx-4 px-4 text-white mb-12 shadow-inner">
          <div className="container mx-auto">
-            <h2 className="text-2xl font-black mb-8 flex items-center gap-2"><span className="text-red-600">●</span> ভিডিও</h2>
+            <h2 className="text-2xl font-black mb-8 border-l-4 border-red-600 pl-4 uppercase">ভিডিও সংবাদ</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-               {posts.slice(22, 26).map(p => (
-                  <Link key={p.slug} href={`/${p.slug}`} className="group relative">
-                     <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
-                        <img src={p.featuredImage?.node?.sourceUrl} className="w-full h-full object-cover opacity-80" />
+               {videoStyleGrid.map(p => (
+                  <Link key={p.slug} href={`/${p.slug}`} className="group block">
+                     <div className="aspect-video bg-gray-800 rounded-sm overflow-hidden relative border border-gray-700">
+                        {p.featuredImage?.node?.sourceUrl && (
+                          <img src={p.featuredImage.node.sourceUrl} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition" alt="" />
+                        )}
                         <div className="absolute inset-0 flex items-center justify-center">
-                           <div className="bg-white/30 backdrop-blur-sm p-3 rounded-full text-white ring-4 ring-white/20">▶</div>
+                           <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/50 group-hover:scale-110 transition text-white">▶</div>
                         </div>
                      </div>
-                     <h4 className="mt-4 font-bold text-lg group-hover:text-blue-700 leading-tight">{p.title}</h4>
+                     <h4 className="mt-4 font-bold text-lg leading-tight group-hover:text-red-400 transition">{p.title}</h4>
                   </Link>
                ))}
             </div>
          </div>
       </div>
 
-      {/* ৩. মিক্সড সেকশন: খেলা ও র‍্যাঙ্কিং */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-         <div className="lg:col-span-8">
-            <h2 className="text-3xl font-black mb-8 border-l-8 border-blue-700 pl-4">খেলা</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-               <Link href={`/${sports[0]?.slug}`} className="group block md:col-span-1">
-                  <img src={sports[0]?.featuredImage?.node?.sourceUrl} className="w-full aspect-[16/10] object-cover rounded-sm mb-4" />
-                  <h3 className="text-2xl font-bold group-hover:text-blue-700">{sports[0]?.title}</h3>
-               </Link>
-               <div className="space-y-6">
-                  {sports.slice(1, 4).map(p => (
-                     <Link key={p.slug} href={`/${p.slug}`} className="flex gap-4 group border-b pb-4">
-                        <img src={p.featuredImage?.node?.sourceUrl} className="w-28 h-20 object-cover" />
-                        <h4 className="font-bold text-[15px] group-hover:text-blue-700">{p.title}</h4>
-                     </Link>
-                  ))}
-               </div>
-            </div>
-         </div>
-
-         {/* ডানদিকের র‍্যাঙ্কিং (পঠিত) */}
-         <div className="lg:col-span-4 bg-white border p-6 rounded shadow-sm">
-            <h3 className="font-black text-2xl mb-8 border-b-2 border-black inline-block pb-1">সর্বাধিক পঠিত</h3>
-            <div className="space-y-8">
-               {mostRead.map((p, i) => (
-                  <Link key={p.slug} href={`/${p.slug}`} className="flex gap-4 group items-start border-b pb-6 last:border-0">
-                     <span className="rank-number">{i + 1}</span>
-                     <h4 className="font-bold text-lg group-hover:text-blue-700 leading-tight">{p.title}</h4>
-                  </Link>
-               ))}
-            </div>
-         </div>
+      {/* ৩. গ্রিড সেকশন: বাংলাদেশ ও অন্যান্য */}
+      <div className="mb-20">
+        <h2 className="text-3xl font-black mb-10 border-b-4 border-blue-800 inline-block pb-1 uppercase">বাংলাদেশ</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+           {sportsGrid.map(p => (
+             <Link key={p.slug} href={`/${p.slug}`} className="group block border-b pb-6 md:border-b-0">
+                <div className="aspect-[16/10] overflow-hidden rounded-sm mb-4 bg-gray-50 border">
+                  {p.featuredImage?.node?.sourceUrl && (
+                    <img src={p.featuredImage.node.sourceUrl} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="" />
+                  )}
+                </div>
+                <h4 className="font-bold text-lg group-hover:text-blue-700 leading-tight">{p.title}</h4>
+             </Link>
+           ))}
+        </div>
       </div>
     </main>
   );
