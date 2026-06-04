@@ -1,109 +1,92 @@
+import { fetchAPI } from "../lib/wordpress";
 import Link from "next/link";
 
-async function fetchNews() {
-  try {
-    const res = await fetch("https://onnetion.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `{ 
-          posts(first: 12) { 
-            nodes { 
-              title 
-              slug 
-              excerpt 
-              featuredImage { node { sourceUrl } } 
-            } 
-          } 
-        }`,
-      }),
-      cache: "no-store",
-    });
-
-    const json = await res.json();
-    return json.data?.posts?.nodes || [];
-  } catch (err) {
-    return [];
-  }
-}
-
 export default async function Home() {
-  const posts = await fetchNews();
+  const data = await fetchAPI(`{
+    posts(first: 25) {
+      nodes {
+        title
+        slug
+        excerpt
+        date
+        featuredImage { node { sourceUrl } }
+      }
+    }
+  }`);
+  
+  const posts = data?.posts?.nodes || [];
+  if (posts.length === 0) return <div className="p-20 text-center">সার্ভার এরর...</div>;
 
-  // যদি খবর না পাওয়া যায় তবে খালি পেজ না দেখিয়ে একটি মেসেজ দেখাবে
-  const hasPosts = posts.length > 0;
-  const mainLead = hasPosts ? posts[0] : null;
-  const sideList = hasPosts ? posts.slice(1, 6) : [];
-  const bottomGrid = hasPosts ? posts.slice(6, 12) : [];
+  const lead = posts[0];
+  const midGrid = posts.slice(1, 5);
+  const sideList = posts.slice(5, 12);
+  const bottomGrid = posts.slice(12, 20);
 
   return (
-    <main className="container mx-auto px-4 py-8 bg-white shadow-lg mt-4 rounded-xl min-h-[600px]">
-      {!hasPosts ? (
-        <div className="text-center py-40">
-           <h2 className="text-xl font-bold text-red-600 animate-pulse font-['Hind_Siliguri']">
-             সার্ভার থেকে খবর লোড হতে দেরি হচ্ছে... দয়া করে ব্রাউজার রিফ্রেশ দিন অথবা Hostinger ModSecurity চেক করুন।
-           </h2>
+    <main className="container mx-auto px-4 py-8 bg-white min-h-screen">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        
+        {/* কলাম ১: বড় খবর ও সাব-নিউজ */}
+        <div className="lg:col-span-6 border-r border-gray-100 pr-8">
+          <Link href={`/${lead.slug}`} className="group block mb-10">
+             <div className="overflow-hidden rounded-sm mb-6">
+               <img src={lead.featuredImage?.node?.sourceUrl} className="w-full h-auto object-cover group-hover:scale-[1.03] transition-transform duration-700" alt="" />
+             </div>
+             <h1 className="text-[44px] font-extrabold leading-[1.1] group-hover:text-[#d92328] transition-colors mb-4">{lead.title}</h1>
+             <div className="text-gray-600 text-lg leading-relaxed" dangerouslySetInnerHTML={{ __html: lead.excerpt }} />
+          </Link>
+          
+          <div className="grid grid-cols-2 gap-8 pt-8 border-t border-gray-100">
+             {midGrid.slice(0, 2).map(post => (
+               <Link key={post.slug} href={`/${post.slug}`} className="group block">
+                  <img src={post.featuredImage?.node?.sourceUrl} className="w-full h-32 object-cover mb-3" />
+                  <h3 className="font-bold text-xl group-hover:text-[#d92328] leading-tight">{post.title}</h3>
+               </Link>
+             ))}
+          </div>
         </div>
-      ) : (
-        <>
-          {/* টপ সেকশন: ৩ কলাম লেআউট (প্রিমিয়াম) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 border-b pb-12 mb-12">
-            
-            {/* বাম পাশ: খবরের তালিকা */}
-            <div className="lg:col-span-3 space-y-5 hidden lg:block border-r pr-6">
-              <h3 className="font-black text-blue-700 border-b pb-2 mb-4">আলোচিত</h3>
-              {sideList.slice(0, 3).map((post) => (
-                <Link key={post.slug} href={`/${post.slug}`} className="block border-b pb-4 group last:border-0">
-                  <h4 className="font-bold text-md leading-tight group-hover:text-red-600 transition duration-300">
-                    {post.title}
-                  </h4>
+
+        {/* কলাম ২: খবরের তালিকা ও ক্যাটাগরি ফোকাস */}
+        <div className="lg:col-span-3 border-r border-gray-100 px-2">
+           <h3 className="text-[#d92328] font-black border-b-2 border-[#d92328] inline-block mb-6 uppercase tracking-wider">বাংলাদেশ</h3>
+           <div className="space-y-6">
+              {sideList.map(post => (
+                <Link key={post.slug} href={`/${post.slug}`} className="block border-b border-gray-50 pb-4 group last:border-0">
+                  <h4 className="font-bold text-lg leading-snug group-hover:text-[#0056b3] transition-colors">{post.title}</h4>
+                  <p className="text-xs text-gray-400 mt-2">৫ মিনিট আগে</p>
                 </Link>
               ))}
-            </div>
+           </div>
+        </div>
 
-            {/* মাঝখান: বিশাল লিড নিউজ (প্রথম আলোর মতো) */}
-            <div className="lg:col-span-6 lg:px-6">
-              <Link href={`/${mainLead.slug}`} className="group block text-center">
-                <img src={mainLead.featuredImage?.node?.sourceUrl} className="w-full h-auto rounded-2xl shadow-xl mb-6 hover:scale-[1.02] transition duration-500" alt="" />
-                <h1 className="text-4xl md:text-5xl font-black group-hover:text-red-600 leading-tight mb-4 tracking-tighter">
-                  {mainLead.title}
-                </h1>
-                <div className="text-gray-500 text-lg line-clamp-2" dangerouslySetInnerHTML={{ __html: mainLead.excerpt }} />
-              </Link>
-            </div>
-
-            {/* ডান পাশ: ছবিসহ ছোট নিউজ */}
-            <div className="lg:col-span-3 lg:border-l pl-6 space-y-6">
-              <h3 className="font-black text-red-600 border-b pb-2 mb-4">সর্বশেষ</h3>
-              {sideList.map((post) => (
-                <Link key={post.slug} href={`/${post.slug}`} className="flex gap-3 group border-b pb-4 last:border-0">
-                  <img src={post.featuredImage?.node?.sourceUrl} className="w-20 h-16 object-cover rounded-lg flex-shrink-0" alt="" />
-                  <h4 className="font-bold text-sm group-hover:text-blue-700 leading-tight">
-                    {post.title}
-                  </h4>
+        {/* কলাম ৩: ছবিসহ ছোট নিউজ ও সর্বাধিক পঠিত */}
+        <div className="lg:col-span-3 space-y-8">
+           <div className="bg-gray-50 p-5 rounded-sm">
+              <h3 className="font-black text-xl mb-6 border-l-4 border-[#d92328] pl-3">সর্বাধিক পঠিত</h3>
+              {posts.slice(15, 20).map((post, i) => (
+                <Link key={post.slug} href={`/${post.slug}`} className="flex gap-4 items-start mb-6 last:mb-0 group">
+                  <span className="text-3xl font-black text-gray-200 group-hover:text-[#d92328]">{i+1}</span>
+                  <h4 className="font-bold text-sm leading-tight group-hover:text-blue-700">{post.title}</h4>
                 </Link>
               ))}
-            </div>
-          </div>
+           </div>
+        </div>
+      </div>
 
-          {/* নিচের অংশ: ৪ কলাম গ্রিড */}
-          <div className="py-8">
-            <h2 className="text-2xl font-black mb-10 border-l-8 border-red-600 pl-4 uppercase">আরও সংবাদ</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {bottomGrid.map((post) => (
-                <Link key={post.slug} href={`/${post.slug}`} className="group bg-gray-50 p-3 rounded-2xl hover:bg-white hover:shadow-2xl transition duration-500 border">
-                  <div className="overflow-hidden rounded-xl mb-4">
-                    <img src={post.featuredImage?.node?.sourceUrl} className="w-full h-40 object-cover group-hover:scale-110 transition duration-700" alt="" />
-                  </div>
-                  <h4 className="font-bold text-lg group-hover:text-red-600 leading-tight line-clamp-2">
-                    {post.title}
-                  </h4>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
+      {/* নিচের অংশ: ৪ কলাম প্রিমিয়াম কার্ডস */}
+      <div className="mt-20 pt-12 border-t-4 border-black">
+        <h2 className="text-3xl font-black mb-10 italic uppercase">খেলাধুলা</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+           {bottomGrid.map(post => (
+             <Link key={post.slug} href={`/${post.slug}`} className="group block">
+                <div className="relative aspect-video overflow-hidden mb-4 bg-gray-100">
+                  <img src={post.featuredImage?.node?.sourceUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
+                </div>
+                <h4 className="font-bold text-lg group-hover:text-[#d92328] leading-tight">{post.title}</h4>
+             </Link>
+           ))}
+        </div>
+      </div>
     </main>
   );
 }
