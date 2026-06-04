@@ -11,6 +11,7 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "lucide-react": "latest"
+    "@apollo/client": "^3.8.0",
+    "graphql": "^16.8.0"
   }
 }
