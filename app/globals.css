@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Arial', sans-serif;
+}
+
+.news-content p {
+  margin-bottom: 1.5rem;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: #333;
+}
+
+.news-content img {
+  border-radius: 0.75rem;
+  margin: 2rem 0;
+}
