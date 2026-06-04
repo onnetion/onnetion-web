@@ -2,12 +2,9 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'onnetion.com',
-      },
+      { protocol: 'https', hostname: 'onnetion.com' },
     ],
+    minimumCacheTTL: 60,
   },
 };
-
 export default nextConfig;
