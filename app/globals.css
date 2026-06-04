@@ -3,17 +3,23 @@
 @tailwind utilities;
 
 body {
-  font-family: 'Arial', sans-serif;
+  background-color: #ffffff;
+  -webkit-font-smoothing: antialiased;
 }
 
-.news-content p {
+/* প্রথম আলোর লিড নিউজের টাইপোগ্রাফি */
+h1 {
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+/* লিড ইমেজের ওপরের হালকা শ্যাডো */
+img {
+  transition: opacity 0.3s ease;
+}
+
+.prose p {
   margin-bottom: 1.5rem;
   font-size: 1.15rem;
   line-height: 1.8;
-  color: #333;
-}
-
-.news-content img {
-  border-radius: 0.75rem;
-  margin: 2rem 0;
 }
