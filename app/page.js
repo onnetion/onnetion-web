@@ -4,26 +4,13 @@ async function getPosts() {
   const res = await fetch('https://onnetion.com/graphql', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    next: { revalidate: 60 }, // প্রতি ৬০ সেকেন্ড পর পর আপডেট হবে
+    next: { revalidate: 60 },
     body: JSON.stringify({
-      query: `
-        query GetPosts {
-          posts(first: 10) {
-            nodes {
-              title
-              slug
-              featuredImage {
-                node { sourceUrl }
-              }
-            }
-          }
-        }
-      `,
+      query: `{ posts(first: 20) { nodes { title slug excerpt date featuredImage { node { sourceUrl } } } } }`,
     }),
   });
-
-  const { data } = await res.json();
-  return data?.posts?.nodes || [];
+  const json = await res.json();
+  return json.data.posts.nodes;
 }
 
 export default async function Home() {
@@ -31,26 +18,41 @@ export default async function Home() {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <div className="md:col-span-8">
-          {posts.length > 0 ? (
-            <Link href={`/${posts[0].slug}`} className="group block">
-              <img src={posts[0].featuredImage?.node.sourceUrl} className="w-full h-[450px] object-cover rounded-lg shadow-md" alt="" />
-              <h2 className="text-4xl font-bold mt-4 group-hover:text-red-600 transition">{posts[0].title}</h2>
+      {/* টপ সেকশন: প্রধান খবর ও সাইডবার */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 border-b pb-12 mb-12">
+        {/* প্রধান বড় নিউজ */}
+        <div className="lg:col-span-8">
+          <Link href={`/${posts[0].slug}`} className="group">
+            <div className="overflow-hidden rounded-xl mb-6">
+              <img src={posts[0].featuredImage?.node.sourceUrl} className="w-full h-[450px] object-cover group-hover:scale-105 transition duration-700" alt="" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-extrabold group-hover:text-red-600 transition leading-tight">{posts[0].title}</h1>
+            <div className="text-gray-600 mt-4 text-lg line-clamp-3" dangerouslySetInnerHTML={{ __html: posts[0].excerpt }} />
+          </Link>
+        </div>
+
+        {/* পাশের তালিকা সংবাদ */}
+        <div className="lg:col-span-4 space-y-6">
+          <h3 className="text-xl font-bold bg-gray-900 text-white px-4 py-2 rounded">সর্বশেষ</h3>
+          {posts.slice(1, 6).map((post) => (
+            <Link key={post.slug} href={`/${post.slug}`} className="flex gap-4 group border-b pb-4 last:border-0">
+              <img src={post.featuredImage?.node.sourceUrl} className="w-28 h-20 object-cover rounded-lg shadow-sm" alt="" />
+              <h4 className="font-bold group-hover:text-red-600 transition leading-snug">{post.title}</h4>
             </Link>
-          ) : <p className="text-center py-20">খবর পাওয়া যায়নি...</p>}
+          ))}
         </div>
-        <div className="md:col-span-4">
-          <h3 className="text-xl font-bold border-l-4 border-red-600 pl-2 mb-4">সর্বশেষ সংবাদ</h3>
-          <div className="space-y-6">
-            {posts.slice(1, 7).map((post) => (
-              <Link key={post.slug} href={`/${post.slug}`} className="flex gap-4 group border-b pb-4 block">
-                <img src={post.featuredImage?.node.sourceUrl} className="w-24 h-16 object-cover rounded" alt="" />
-                <h4 className="font-bold group-hover:text-red-600 transition leading-tight">{post.title}</h4>
-              </Link>
-            ))}
-          </div>
-        </div>
+      </div>
+
+      {/* নিচের গ্রিড সেকশন: আরও খবর */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {posts.slice(6, 14).map((post) => (
+          <Link key={post.slug} href={`/${post.slug}`} className="group border rounded-xl p-3 hover:shadow-xl transition bg-white">
+            <div className="overflow-hidden rounded-lg mb-3">
+              <img src={post.featuredImage?.node.sourceUrl} className="w-full h-40 object-cover group-hover:scale-110 transition duration-500" alt="" />
+            </div>
+            <h4 className="font-bold text-lg group-hover:text-red-600 line-clamp-2 leading-tight">{post.title}</h4>
+          </Link>
+        ))}
       </div>
     </main>
   );
