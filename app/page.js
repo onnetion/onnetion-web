@@ -1,27 +1,29 @@
-import { client } from "../lib/apollo-client";
-import { gql } from "@apollo/client";
 import Link from "next/link";
 
 async function getPosts() {
-  const query = gql`
-    query GetPosts {
-      posts(first: 10) {
-        nodes {
-          title
-          slug
-          featuredImage {
-            node { sourceUrl }
+  const res = await fetch('https://onnetion.com/graphql', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    next: { revalidate: 60 }, // প্রতি ৬০ সেকেন্ড পর পর আপডেট হবে
+    body: JSON.stringify({
+      query: `
+        query GetPosts {
+          posts(first: 10) {
+            nodes {
+              title
+              slug
+              featuredImage {
+                node { sourceUrl }
+              }
+            }
           }
         }
-      }
-    }
-  `;
-  try {
-    const { data } = await client.query({ query });
-    return data.posts.nodes;
-  } catch (error) {
-    return [];
-  }
+      `,
+    }),
+  });
+
+  const { data } = await res.json();
+  return data?.posts?.nodes || [];
 }
 
 export default async function Home() {
@@ -32,17 +34,17 @@ export default async function Home() {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
         <div className="md:col-span-8">
           {posts.length > 0 ? (
-            <Link href={`/${posts[0].slug}`} className="group">
-              <img src={posts[0].featuredImage?.node.sourceUrl} className="w-full h-[450px] object-cover rounded-lg" alt="" />
+            <Link href={`/${posts[0].slug}`} className="group block">
+              <img src={posts[0].featuredImage?.node.sourceUrl} className="w-full h-[450px] object-cover rounded-lg shadow-md" alt="" />
               <h2 className="text-4xl font-bold mt-4 group-hover:text-red-600 transition">{posts[0].title}</h2>
             </Link>
-          ) : <p>লোড হচ্ছে...</p>}
+          ) : <p className="text-center py-20">খবর পাওয়া যায়নি...</p>}
         </div>
         <div className="md:col-span-4">
           <h3 className="text-xl font-bold border-l-4 border-red-600 pl-2 mb-4">সর্বশেষ সংবাদ</h3>
           <div className="space-y-6">
             {posts.slice(1, 7).map((post) => (
-              <Link key={post.slug} href={`/${post.slug}`} className="flex gap-4 group border-b pb-4">
+              <Link key={post.slug} href={`/${post.slug}`} className="flex gap-4 group border-b pb-4 block">
                 <img src={post.featuredImage?.node.sourceUrl} className="w-24 h-16 object-cover rounded" alt="" />
                 <h4 className="font-bold group-hover:text-red-600 transition leading-tight">{post.title}</h4>
               </Link>
