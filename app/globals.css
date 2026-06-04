@@ -2,24 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --pa-red: #d92328;
+  --pa-blue: #0056b3;
+  --pa-bg: #f8f9fa;
+}
+
 body {
-  background-color: #ffffff;
-  -webkit-font-smoothing: antialiased;
+  background-color: var(--pa-bg);
+  color: #1a1a1a;
+  font-family: 'Hind Siliguri', sans-serif;
 }
 
-/* প্রথম আলোর লিড নিউজের টাইপোগ্রাফি */
-h1 {
-  letter-spacing: -0.02em;
-  font-weight: 800;
+/* প্রফেশনাল নিউজ কার্ড স্টাইল */
+.news-card-border {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
-/* লিড ইমেজের ওপরের হালকা শ্যাডো */
-img {
-  transition: opacity 0.3s ease;
+.news-card-border:last-child {
+  border-bottom: none;
 }
 
-.prose p {
-  margin-bottom: 1.5rem;
-  font-size: 1.15rem;
-  line-height: 1.8;
+/* ক্যাটাগরি লেবেল */
+.cat-label {
+  color: var(--pa-red);
+  font-weight: 700;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  display: block;
 }
