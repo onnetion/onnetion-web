@@ -3,24 +3,34 @@
 @tailwind utilities;
 
 :root {
-  --pa-blue: #0056b3;
   --pa-red: #d92328;
-  --pa-bg-video: #f0f7fa;
+  --pa-blue: #0056b3;
+  --pa-video-bg: #f0f7fa;
 }
 
 body {
   font-family: 'Hind Siliguri', sans-serif;
   background-color: #ffffff;
+  color: #333;
 }
 
-.section-title {
-  @apply text-xl font-bold border-b-2 border-black pb-1 mb-6 flex justify-between items-center;
+/* ভিডিও সেকশনের বিশেষ কার্ড */
+.video-card-box {
+  background-color: var(--pa-video-bg);
+  padding: 15px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
-.section-title span { @apply border-b-4 border-[var(--pa-red)] -mb-[6px] pb-1; }
 
+/* স্ক্রলবার হাইড করা */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-.video-card {
-  @apply bg-[#f0f7fa] p-4 h-full flex flex-col justify-between hover:bg-[#e6f2f8] transition-colors rounded-b-lg;
+.section-label {
+  @apply text-2xl font-bold border-b-2 border-black pb-1 mb-6 flex justify-between items-center;
 }
+.section-label span { @apply border-b-4 border-[var(--pa-red)] -mb-[6px] pb-1; }
