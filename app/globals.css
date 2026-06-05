@@ -3,30 +3,27 @@
 @tailwind utilities;
 
 :root {
-  --pa-blue: #0056b3;
   --pa-red: #d92328;
-  --pa-gray: #f4f4f4;
+  --pa-blue: #0056b3;
+  --pa-text: #1a1a1a;
   --pa-border: #e5e7eb;
 }
 
 body {
   font-family: 'Hind Siliguri', sans-serif;
-  background-color: #ffffff;
+  color: var(--pa-text);
+  background: #ffffff;
 }
 
-/* নিউজ থাম্বনেইল এফেক্ট */
-.news-img-hover {
-  @apply overflow-hidden rounded-sm relative;
+/* প্রথম আলোর সিগনেচার ক্যাটেগরি টাইটেল */
+.section-title {
+  @apply text-2xl font-bold border-b-2 border-black pb-1 mb-6 flex justify-between items-center;
 }
-.news-img-hover img {
-  @apply transition-transform duration-700 hover:scale-105 object-cover;
-}
+.section-title span { @apply border-b-4 border-[var(--pa-red)] -mb-[6px] pb-1; }
 
-/* নাম্বার র‍্যাঙ্কিং (১, ২, ৩...) */
-.rank-number {
-  @apply text-4xl font-black text-gray-200 group-hover:text-blue-600 transition;
-}
+/* ইমেজ ওভারলে ও এনিমেশন */
+.news-thumb { @apply overflow-hidden relative bg-gray-100 rounded-sm aspect-video; }
+.news-thumb img { @apply transition-transform duration-700 hover:scale-105 w-full h-full object-cover; }
 
-/* টাইপোগ্রাফি কন্ট্রোল */
-.lead-title { @apply text-4xl md:text-5xl font-black leading-tight mb-4 tracking-tight; }
-.sub-title { @apply text-lg font-bold leading-snug group-hover:text-blue-700 transition; }
+/* মোবাইল মেনু ড্রয়ার */
+.mobile-drawer { @apply fixed inset-y-0 left-0 w-80 bg-white shadow-2xl z-[200] transform -translate-x-full transition-transform duration-300; }
