@@ -1,112 +1,126 @@
-import { fetchAPI } from "../lib/wordpress";
 import Link from "next/link";
 
-export default async function Home() {
-  const data = await fetchAPI(`{
-    posts(first: 30) {
-      nodes {
-        title
-        slug
-        excerpt
-        date
-        featuredImage { node { sourceUrl } }
-      }
-    }
-  }`);
-  
-  const posts = data?.posts?.nodes || [];
-  
-  // যদি কোনো খবরই না থাকে
-  if (posts.length === 0) {
-    return <div className="p-20 text-center font-bold text-gray-400">খবর লোড হচ্ছে অথবা ডাটাবেস ফাঁকা...</div>;
-  }
+async function getProNews() {
+  const res = await fetch("https://onnetion.com/graphql", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query: `{ 
+        posts(first: 35) { 
+          nodes { 
+            title slug excerpt date 
+            featuredImage { node { sourceUrl } } 
+            categories { nodes { name slug } }
+          } 
+        } 
+      }`,
+    }),
+    next: { revalidate: 60 }
+  });
+  const json = await res.json();
+  return json.data?.posts?.nodes || [];
+}
 
-  // ডাটা স্ল্যাসিং (খবর ভাগ করা)
+export default async function Home() {
+  const posts = await getProNews();
+  if (!posts.length) return <div className="p-40 text-center font-bold">ডেটা কানেক্ট হচ্ছে... ওয়ার্ডপ্রেস চেক করুন।</div>;
+
   const lead = posts[0];
-  const subLead = posts.slice(1, 5);
-  const sideList = posts.slice(5, 11);
-  const videoStyleGrid = posts.slice(11, 15);
-  const sportsGrid = posts.slice(15, 23);
+  const midGrid = posts.slice(1, 5);
+  const latestList = posts.slice(5, 11);
+  const videoGrid = posts.slice(11, 15);
+  const mostRead = posts.slice(15, 21);
+  const sports = posts.slice(21, 27);
 
   return (
-    <main className="container mx-auto px-4 py-8 bg-white">
-      {/* ১. টপ হিরো সেকশন: প্রফেশনাল ৩ কলাম */}
+    <main className="container mx-auto px-4 py-8">
+      {/* SECTION 1: THE HERO (3 Columns) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 border-b pb-12 mb-12">
-        
-        {/* বাম কলাম: সাব-নিউজ (৪টি) */}
-        <div className="lg:col-span-3 space-y-6 hidden lg:block border-r pr-6">
-          {subLead.map(p => (
-            <Link key={p.slug} href={`/${p.slug}`} className="block border-b pb-4 last:border-0 group">
-              <h3 className="font-bold text-[17px] leading-tight group-hover:text-blue-700 transition">{p.title}</h3>
-              <p className="text-[11px] text-gray-400 mt-2 font-bold uppercase tracking-tighter">৫ মিনিট আগে</p>
-            </Link>
-          ))}
+        {/* কলাম ১: সাব লিড */}
+        <div className="lg:col-span-3 border-r pr-6 hidden lg:block space-y-6">
+           {midGrid.slice(0, 3).map(p => (
+             <Link key={p.slug} href={`/${p.slug}`} className="block border-b pb-4 group last:border-0">
+               <img src={p.featuredImage?.node?.sourceUrl} className="w-full h-32 object-cover rounded mb-3" alt="" />
+               <h3 className="font-bold text-lg group-hover:text-blue-700 leading-tight">{p.title}</h3>
+             </Link>
+           ))}
         </div>
 
-        {/* মাঝখানের প্রধান লিড নিউজ */}
+        {/* কলাম ২: বিশাল লিড */}
         <div className="lg:col-span-6 lg:px-6">
-          <Link href={`/${lead?.slug}`} className="group block text-center">
-            {lead?.featuredImage?.node?.sourceUrl ? (
-              <div className="aspect-video overflow-hidden rounded-sm mb-6 bg-gray-100">
-                <img src={lead.featuredImage.node.sourceUrl} className="w-full h-full object-cover group-hover:scale-105 transition duration-1000" alt="" />
-              </div>
-            ) : <div className="aspect-video bg-gray-100 mb-6 rounded"></div>}
-            <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-tighter group-hover:text-blue-700 transition">
-              {lead?.title}
-            </h1>
-            <div className="text-gray-500 mt-6 text-lg line-clamp-3 leading-relaxed" dangerouslySetInnerHTML={{ __html: lead?.excerpt || "" }} />
+          <Link href={`/${lead.slug}`} className="group block text-center">
+            <div className="overflow-hidden rounded-sm mb-6 aspect-video bg-gray-50">
+              <img src={lead.featuredImage?.node?.sourceUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="" />
+            </div>
+            <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tighter group-hover:text-blue-700">{lead.title}</h1>
+            <div className="text-gray-500 mt-6 text-xl line-clamp-3 leading-relaxed" dangerouslySetInnerHTML={{ __html: lead.excerpt }} />
           </Link>
         </div>
 
-        {/* ডান কলাম: সর্বাধিক পঠিত র‍্যাঙ্কিং */}
-        <div className="lg:col-span-3 lg:border-l pl-6 space-y-8">
-           <h3 className="font-black text-xl border-b-2 border-black inline-block pb-1 mb-4 uppercase">আলোচিত</h3>
-           {sideList.map((p, i) => (
-            <Link key={p.slug} href={`/${p.slug}`} className="flex gap-4 group border-b pb-4 last:border-0 items-start">
-              <span className="text-3xl font-black text-gray-200 group-hover:text-blue-600 transition">{i + 1}</span>
-              <h4 className="font-bold text-[15px] leading-tight group-hover:text-blue-700">{p.title}</h4>
-            </Link>
-          ))}
+        {/* কলাম ৩: সর্বশেষ তালিকা */}
+        <div className="lg:col-span-3 border-l pl-6">
+           <h3 className="section-heading"><span>সর্বশেষ সংবাদ</span></h3>
+           <div className="space-y-6">
+              {latestList.map((p, i) => (
+                <Link key={p.slug} href={`/${p.slug}`} className="flex gap-3 group border-b pb-4 last:border-0">
+                  <span className="text-3xl font-black text-gray-100 group-hover:text-red-600 transition">{i + 1}</span>
+                  <h4 className="font-bold text-sm leading-tight group-hover:text-blue-700">{p.title}</h4>
+                </Link>
+              ))}
+           </div>
         </div>
       </div>
 
-      {/* ২. ভিডিও স্টাইল সেকশন (প্লে আইকন এফেক্ট) */}
-      <div className="py-12 bg-[#1a1a1a] -mx-4 px-4 text-white mb-12 shadow-inner">
+      {/* SECTION 2: VIDEO GRID (প্লে আইকনসহ) */}
+      <div className="py-16 bg-[#0a0a0a] -mx-4 px-4 text-white mb-16 shadow-2xl">
          <div className="container mx-auto">
-            <h2 className="text-2xl font-black mb-8 border-l-4 border-red-600 pl-4 uppercase">ভিডিও সংবাদ</h2>
+            <h2 className="section-heading border-gray-800"><span>ভিডিও সংবাদ</span></h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-               {videoStyleGrid.map(p => (
-                  <Link key={p.slug} href={`/${p.slug}`} className="group block">
-                     <div className="aspect-video bg-gray-800 rounded-sm overflow-hidden relative border border-gray-700">
-                        {p.featuredImage?.node?.sourceUrl && (
-                          <img src={p.featuredImage.node.sourceUrl} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition" alt="" />
-                        )}
+               {videoGrid.map(p => (
+                  <Link key={p.slug} href={`/${p.slug}`} className="group relative">
+                     <div className="aspect-video bg-black rounded-lg overflow-hidden relative border border-gray-800">
+                        <img src={p.featuredImage?.node?.sourceUrl} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition" alt="" />
                         <div className="absolute inset-0 flex items-center justify-center">
                            <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/50 group-hover:scale-110 transition text-white">▶</div>
                         </div>
                      </div>
-                     <h4 className="mt-4 font-bold text-lg leading-tight group-hover:text-red-400 transition">{p.title}</h4>
+                     <h4 className="mt-4 font-bold text-lg leading-tight group-hover:text-red-500 transition">{p.title}</h4>
                   </Link>
                ))}
             </div>
          </div>
       </div>
 
-      {/* ৩. গ্রিড সেকশন: বাংলাদেশ ও অন্যান্য */}
-      <div className="mb-20">
-        <h2 className="text-3xl font-black mb-10 border-b-4 border-blue-800 inline-block pb-1 uppercase">বাংলাদেশ</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-           {sportsGrid.map(p => (
-             <Link key={p.slug} href={`/${p.slug}`} className="group block border-b pb-6 md:border-b-0">
-                <div className="aspect-[16/10] overflow-hidden rounded-sm mb-4 bg-gray-50 border">
-                  {p.featuredImage?.node?.sourceUrl && (
-                    <img src={p.featuredImage.node.sourceUrl} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="" />
-                  )}
-                </div>
-                <h4 className="font-bold text-lg group-hover:text-blue-700 leading-tight">{p.title}</h4>
-             </Link>
-           ))}
-        </div>
+      {/* SECTION 3: CATEGORY & MOST READ */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+         <div className="lg:col-span-8">
+            <h2 className="section-heading"><span>খেলাধুলা</span></h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+               <Link href={`/${sports[0].slug}`} className="group block">
+                  <img src={sports[0].featuredImage?.node?.sourceUrl} className="w-full aspect-[16/10] object-cover mb-4" />
+                  <h3 className="text-2xl font-bold group-hover:text-blue-700">{sports[0].title}</h3>
+               </Link>
+               <div className="space-y-6">
+                  {sports.slice(1, 5).map(p => (
+                     <Link key={p.slug} href={`/${p.slug}`} className="flex gap-4 group border-b pb-4 last:border-0">
+                        <img src={p.featuredImage?.node?.sourceUrl} className="w-24 h-16 object-cover" />
+                        <h4 className="font-bold text-sm group-hover:text-blue-700 leading-tight">{p.title}</h4>
+                     </Link>
+                  ))}
+               </div>
+            </div>
+         </div>
+         <div className="lg:col-span-4 bg-gray-50 p-6 rounded-sm border">
+            <h3 className="section-heading"><span>সর্বাধিক পঠিত</span></h3>
+            <div className="space-y-8">
+               {mostRead.map((p, i) => (
+                  <Link key={p.slug} href={`/${p.slug}`} className="flex gap-5 group items-start border-b pb-6 last:border-0">
+                     <span className="text-4xl font-black text-gray-200 group-hover:text-blue-700 transition">{i + 1}</span>
+                     <h4 className="font-bold text-lg leading-tight group-hover:text-blue-700">{p.title}</h4>
+                  </Link>
+               ))}
+            </div>
+         </div>
       </div>
     </main>
   );
