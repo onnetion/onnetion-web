@@ -3,10 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --pa-red: #d92328;
   --pa-blue: #0056b3;
-  --pa-gray: #f4f4f4;
-  --pa-border: #e5e7eb;
+  --pa-red: #d92328;
+  --pa-bg-video: #f0f7fa;
 }
 
 body {
@@ -14,26 +13,14 @@ body {
   background-color: #ffffff;
 }
 
-/* প্রথম আলোর সিগনেচার সেকশন টাইটেল */
-.section-heading {
-  @apply text-2xl font-bold border-b-2 border-black pb-1 mb-8 flex justify-between items-center;
+.section-title {
+  @apply text-xl font-bold border-b-2 border-black pb-1 mb-6 flex justify-between items-center;
 }
-.section-heading span {
-  @apply border-b-4 border-[var(--pa-red)] -mb-[6px] pb-1;
-}
+.section-title span { @apply border-b-4 border-[var(--pa-red)] -mb-[6px] pb-1; }
 
-.news-card-hover {
-  @apply transition-all duration-300 hover:shadow-xl hover:scale-[1.01] rounded-sm overflow-hidden;
-}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-.ticker-wrap {
-  @apply bg-black text-white py-2 overflow-hidden whitespace-nowrap relative;
-}
-.ticker-content {
-  display: inline-block;
-  animation: ticker 40s linear infinite;
-}
-@keyframes ticker {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+.video-card {
+  @apply bg-[#f0f7fa] p-4 h-full flex flex-col justify-between hover:bg-[#e6f2f8] transition-colors rounded-b-lg;
 }
