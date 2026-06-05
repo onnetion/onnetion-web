@@ -1,54 +1,53 @@
 import "./globals.css";
 
 export default function RootLayout({ children }) {
-  const menus = ["সর্বশেষ", "রাজনীতি", "বাংলাদেশ", "বিশ্ব", "খেলা", "বিনোদন", "চাকরি", "জীবনযাপন", "ভিডিও"];
-  
+  const menus = ["বাংলাদেশ", "রাজনীতি", "বিশ্ব", "খেলা", "বিনোদন", "প্রযুক্তি", "মতামত", "চাকরি", "জীবনযাপন"];
+
   return (
     <html lang="bn">
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
         <script src="https://cdn.tailwindcss.com?plugins=typography,aspect-ratio,line-clamp"></script>
       </head>
-      <body className="bg-white">
-        {/* Tier 1: Top Bar */}
-        <div className="border-b py-2 text-[12px] text-gray-500 font-semibold bg-[#fcfcfc]">
+      <body>
+        {/* TIER 1: TOP BAR */}
+        <div className="border-b py-2 text-[12px] font-bold text-gray-500">
           <div className="container mx-auto px-4 flex justify-between items-center">
-            <div className="flex gap-4 uppercase">
-              <span>বৃহস্পতিবার, ৬ জুন ২০২৪</span>
-              <span className="hidden md:inline">সংস্করণ: ঢাকা</span>
+            <div className="flex gap-4 items-center">
+              <span>ঢাকা, {new Date().toLocaleDateString('bn-BD', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <span className="text-red-600 animate-pulse">● ব্রেকিং নিউজ</span>
             </div>
-            <div className="flex gap-6 items-center">
-              <div className="flex gap-4 font-bold text-black border-r pr-4">
-                <span className="text-blue-700 cursor-pointer">ই-পেপার</span>
-                <span className="cursor-pointer">English</span>
-              </div>
-              <button className="bg-blue-700 text-white px-3 py-1 rounded text-[11px] font-bold">লগইন</button>
+            <div className="flex gap-6 items-center uppercase">
+              <span className="hover:text-blue-700 cursor-pointer">E-Paper</span>
+              <span className="bg-blue-700 text-white px-3 py-1 rounded-sm cursor-pointer">Login</span>
             </div>
           </div>
         </div>
 
-        {/* Tier 2: Brand Header */}
-        <header className="py-8 bg-white border-b">
-          <div className="container mx-auto px-4 flex justify-between items-center relative">
-            <div className="md:w-1/3 hidden md:block">
-               <button className="text-gray-400">🔍 খুঁজুন</button>
+        {/* TIER 2: LOGO & AD */}
+        <header className="py-8 bg-white">
+          <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="md:w-1/4 hidden md:block">
+              <button className="text-xl">🔍</button>
             </div>
-            <div className="md:w-1/3 text-center">
-               <a href="/" className="text-7xl font-black text-black tracking-tighter italic">অন্বেষণ</a>
+            <div className="md:w-2/4 text-center">
+              <a href="/" className="text-8xl font-black text-black italic tracking-tighter drop-shadow-sm">অন্বেষণ</a>
             </div>
-            <div className="md:w-1/3 text-right hidden md:block text-gray-400">
-               🔔 নোটিফিকেশন
+            <div className="md:w-1/4 bg-gray-50 h-24 w-full rounded flex items-center justify-center text-xs text-gray-300 uppercase">
+              Advertisement
             </div>
           </div>
         </header>
 
-        {/* Tier 3: Main Navigation */}
-        <nav className="sticky top-0 bg-white z-50 border-b shadow-sm overflow-x-auto">
+        {/* TIER 3: MEGA MENU */}
+        <nav className="sticky top-0 bg-white z-[100] border-y shadow-sm">
           <div className="container mx-auto px-4">
-            <ul className="flex justify-start md:justify-center items-center py-4 gap-6 md:gap-10 font-bold text-[17px] text-gray-800 whitespace-nowrap scrollbar-hide">
-              <li className="text-red-600"><svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg></li>
-              {menus.map((m) => (
-                <li key={m} className="hover:text-blue-700 transition cursor-pointer">{m}</li>
+            <ul className="flex justify-center gap-8 py-4 font-bold text-[18px] text-gray-800 whitespace-nowrap overflow-x-auto scrollbar-hide">
+              {menus.map(m => (
+                <li key={m} className="hover:text-red-600 transition cursor-pointer relative group">
+                  {m}
+                  <span className="absolute -bottom-[17px] left-0 w-0 h-1 bg-red-600 transition-all group-hover:w-full"></span>
+                </li>
               ))}
             </ul>
           </div>
@@ -56,13 +55,14 @@ export default function RootLayout({ children }) {
 
         {children}
 
-        <footer className="bg-[#1a1a1a] text-white mt-20 pt-20 pb-10">
+        {/* FOOTER */}
+        <footer className="bg-[#111] text-white pt-20 pb-10 mt-20">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-6xl font-black italic mb-10">অন্বেষণ</h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-sm text-gray-400 font-bold border-t border-gray-800 pt-10">
-               <span>বিজ্ঞাপন</span><span>সার্কুলেশন</span><span>শর্তাবলী</span><span>গোপনীয়তা</span><span>যোগাযোগ</span>
+            <h2 className="text-6xl font-black italic mb-8">অন্বেষণ</h2>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-sm font-bold border-y border-gray-800 py-10 mb-10">
+              <span>বাংলাদেশ</span><span>বিশ্ব</span><span>খেলা</span><span>বিনোদন</span><span>প্রযুক্তি</span>
             </div>
-            <p className="mt-12 text-gray-600 text-xs uppercase tracking-widest font-bold">© ২০২৪-২০২৬ অন্বেষণ - Digital Media Group</p>
+            <p className="text-gray-500 text-xs tracking-[0.2em]">© ২০২৪-২০২৬ অন্বেষণ - Digital Enterprise Group</p>
           </div>
         </footer>
       </body>
