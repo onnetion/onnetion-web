@@ -5,25 +5,35 @@
 :root {
   --pa-red: #d92328;
   --pa-blue: #0056b3;
-  --pa-text: #1a1a1a;
+  --pa-gray: #f4f4f4;
   --pa-border: #e5e7eb;
 }
 
 body {
   font-family: 'Hind Siliguri', sans-serif;
-  color: var(--pa-text);
-  background: #ffffff;
+  background-color: #ffffff;
 }
 
-/* প্রথম আলোর সিগনেচার ক্যাটেগরি টাইটেল */
-.section-title {
-  @apply text-2xl font-bold border-b-2 border-black pb-1 mb-6 flex justify-between items-center;
+/* প্রথম আলোর সিগনেচার সেকশন টাইটেল */
+.section-heading {
+  @apply text-2xl font-bold border-b-2 border-black pb-1 mb-8 flex justify-between items-center;
 }
-.section-title span { @apply border-b-4 border-[var(--pa-red)] -mb-[6px] pb-1; }
+.section-heading span {
+  @apply border-b-4 border-[var(--pa-red)] -mb-[6px] pb-1;
+}
 
-/* ইমেজ ওভারলে ও এনিমেশন */
-.news-thumb { @apply overflow-hidden relative bg-gray-100 rounded-sm aspect-video; }
-.news-thumb img { @apply transition-transform duration-700 hover:scale-105 w-full h-full object-cover; }
+.news-card-hover {
+  @apply transition-all duration-300 hover:shadow-xl hover:scale-[1.01] rounded-sm overflow-hidden;
+}
 
-/* মোবাইল মেনু ড্রয়ার */
-.mobile-drawer { @apply fixed inset-y-0 left-0 w-80 bg-white shadow-2xl z-[200] transform -translate-x-full transition-transform duration-300; }
+.ticker-wrap {
+  @apply bg-black text-white py-2 overflow-hidden whitespace-nowrap relative;
+}
+.ticker-content {
+  display: inline-block;
+  animation: ticker 40s linear infinite;
+}
+@keyframes ticker {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
