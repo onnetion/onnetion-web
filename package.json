@@ -1,6 +1,6 @@
 {
-  "name": "onnetion-web",
-  "version": "1.0.0",
+  "name": "onnetion-pro-2026",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,7 +11,9 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "@apollo/client": "^3.8.0",
-    "graphql": "^16.8.0"
+    "lucide-react": "latest",
+    "framer-motion": "latest",
+    "clsx": "latest",
+    "tailwind-merge": "latest"
   }
 }
